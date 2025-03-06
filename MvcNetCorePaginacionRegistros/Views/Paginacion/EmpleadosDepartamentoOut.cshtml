@@ -1,0 +1,92 @@
+﻿@model ModelEmpleadosDepartamento
+
+@{
+	Departamento dept = ViewData["DEPARTAMENTO"] as Departamento;
+}
+
+<h1>Empleados Registro Departamento</h1>
+
+<a asp-controller="Paginacion"
+asp-action="Index">
+	Volver a departamentos
+</a>
+
+@if (dept != null) {
+	<ul class="list-group">
+		<li class="list-group-item list-group-item-info">
+			Numero: @dept.IdDepartamento
+		</li>
+		<li class="list-group-item list-group-item-info">
+			Nombre: @dept.Nombre
+		</li>
+		<li class="list-group-item list-group-item-info">
+			Localidad: @dept.Localidad
+		</li>
+	</ul>
+}
+
+@if (Model.NumeroRegistros != 0){
+	<h2>
+		Registro @ViewData["POSICION"] de @ViewData["ULTIMO"]
+	</h2>
+
+	<div>
+		<ul class="list-group list-group-horizontal">
+			<li class="list-group-item">
+				<a asp-controller="Paginacion"
+				   asp-action="EmpleadosDepartamentoOut"
+				   asp-route-posicion="1"
+				   asp-route-idDepartamento="@dept.IdDepartamento">
+					Primero
+				</a>
+			</li>
+			<li class="list-group-item">
+				<a asp-controller="Paginacion"
+				   asp-action="EmpleadosDepartamentoOut"
+				   asp-route-posicion="@ViewData["ANTERIOR"]"
+				   asp-route-idDepartamento="@dept.IdDepartamento">
+					Anterior
+				</a>
+			</li>
+			<li class="list-group-item">
+				<a asp-controller="Paginacion"
+				   asp-action="EmpleadosDepartamentoOut"
+				   asp-route-posicion="@ViewData["SIGUIENTE"]"
+				   asp-route-idDepartamento="@dept.IdDepartamento">
+					Siguiente
+				</a>
+			</li>
+			<li class="list-group-item">
+				<a asp-controller="Paginacion"
+				   asp-action="EmpleadosDepartamentoOut"
+				   asp-route-posicion="@ViewData["ULTIMO"]"
+				   asp-route-idDepartamento="@dept.IdDepartamento">
+					Ultimo
+				</a>
+			</li>
+		</ul>
+	</div>
+	<hr />
+	<ul class="list-group">
+		<li class="list-group-item list-group-item-info">
+			Numero: @Model.Empleado.IdEmpleado
+		</li>
+		<li class="list-group-item list-group-item-info">
+			Nombre: @Model.Empleado.Apellido
+		</li>
+		<li class="list-group-item list-group-item-info">
+			Localidad: @Model.Empleado.Oficio
+		</li>
+		<li class="list-group-item list-group-item-info">
+			Localidad: @Model.Empleado.Salario
+		</li>
+		<li class="list-group-item list-group-item-info">
+			Numero: @Model.Empleado.IdDepartamento
+		</li>
+	</ul>
+}
+else{
+	<h3 class="bg-warning p-3 mt-2 rounded-2">
+		No existen registros para este departamento.
+	</h3>
+}

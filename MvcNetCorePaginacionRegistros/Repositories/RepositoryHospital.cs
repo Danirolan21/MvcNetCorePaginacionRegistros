@@ -54,6 +54,19 @@ using MvcNetCorePaginacionRegistros.Models;
     //			where OFICIO = @oficio) query
     //			WHERE POSICION >= @posicion AND POSICION < (@posicion + 2)
     //go
+    //    create procedure SP_EMPLEADOS_DEPARTAMENTO_INDIVIDUAL_OUT
+    //    (@posicion int, @idDepartamento int
+    //    , @registros int out)
+    //    as
+    //    	select @registros = count(EMP_NO) from EMP
+    //    	where DEPT_NO = @idDepartamento
+    //    	select EMP_NO, APELLIDO, OFICIO, SALARIO, DEPT_NO from 
+    //    		(select ROW_NUMBER() over (order by EMP_NO) as POSICION,
+    //          EMP_NO, APELLIDO, OFICIO, SALARIO, DEPT_NO FROM EMP
+    //    			where DEPT_NO = @idDepartamento) query
+    //				where POSICION = @posicion
+    //    go
+
 #endregion
 
 namespace MvcNetCorePaginacionRegistros.Repositories
@@ -82,6 +95,36 @@ namespace MvcNetCorePaginacionRegistros.Repositories
             return await this.context.Empleados
                 .Where(x => x.Oficio == oficio)
                 .CountAsync();
+        }
+
+        public async Task<ModelEmpleadosDepartamento> GetEmpleadosDepartamentoOutAsync(int posicion, int idDepartamento)
+        {
+            string sql = "SP_EMPLEADOS_DEPARTAMENTO_INDIVIDUAL_OUT @posicion, @idDepartamento, @registros out";
+            SqlParameter pamPosicion =
+                new SqlParameter("@posicion", posicion);
+            SqlParameter pamidDepartamento =
+                new SqlParameter("@idDepartamento", idDepartamento);
+            SqlParameter pamRegistros =
+                new SqlParameter("@registros", 0);
+            pamRegistros.Direction = System.Data.ParameterDirection.Output;
+            var consulta = this.context.Empleados.FromSqlRaw(sql, pamPosicion, pamidDepartamento, pamRegistros);
+            var empleado = await consulta.ToListAsync();
+            ModelEmpleadosDepartamento model = new ModelEmpleadosDepartamento();
+            model.NumeroRegistros = int.Parse(pamRegistros.Value.ToString());
+            if (empleado.Count() != 0)
+            {
+                model.Empleado =  empleado[0];
+            }
+            else
+            {
+                model.Empleado = null;
+            }
+            return model;
+        }
+
+        public async Task<Departamento> FindDepartamentoAsync(int idDepartamento)
+        {
+            return this.context.Departamentos.Find(idDepartamento);
         }
 
         public async Task<ModelEmpleadosOficio> GetEmpleadosOficioOutAsync(int posicion, string oficio)

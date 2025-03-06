@@ -47,6 +47,34 @@ namespace MvcNetCorePaginacionRegistros.Controllers
         }
 
         public async Task<IActionResult>
+            EmpleadosDepartamentoOut(int? posicion, int idDepartamento)
+        {
+            if (posicion == null)
+            {
+                posicion = 1;
+            }
+            ModelEmpleadosDepartamento model = await
+                this.repo.GetEmpleadosDepartamentoOutAsync(posicion.Value, idDepartamento);
+            int numRegistros = model.NumeroRegistros;
+            int siguiente = posicion.Value + 1;
+            if (siguiente > numRegistros)
+            {
+                siguiente = numRegistros;
+            }
+            int anterior = posicion.Value - 1;
+            if (anterior < 1)
+            {
+                anterior = 1;
+            }
+            ViewData["ULTIMO"] = numRegistros;
+            ViewData["SIGUIENTE"] = siguiente;
+            ViewData["ANTERIOR"] = anterior;
+            ViewData["POSICION"] = posicion;
+            ViewData["DEPARTAMENTO"] = await this.repo.FindDepartamentoAsync(idDepartamento);
+            return View(model);
+        }
+
+        public async Task<IActionResult>
             EmpleadosOficioOut(int? posicion, string? oficio)
         {
             if (posicion == null)
@@ -154,9 +182,9 @@ namespace MvcNetCorePaginacionRegistros.Controllers
             return View(departamento);
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            return View(await this.repo.GetDepartamentosAsync());
         }
     }
 }
